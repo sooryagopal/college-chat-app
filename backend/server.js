@@ -16,16 +16,21 @@ connectDB();
 const app = express();
 const server = http.createServer(app);
 
+// Get the client URL from environment variables for production
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+
 // Socket.IO server setup
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173', // Allow frontend to connect
+    origin: CLIENT_URL, // Dynamically set the origin for production
     methods: ['GET', 'POST'],
   },
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: CLIENT_URL, // Dynamically set the origin for Express
+}));
 app.use(express.json());
 
 // Use routes
