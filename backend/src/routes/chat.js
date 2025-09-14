@@ -59,30 +59,48 @@ router.get('/messages/:groupName', protect, async (req, res) => {
     const { groupName } = req.params;
     const { role, department, batch } = req.user;
 
-    // Check user's permission to view the group
-    const group = await Group.findOne({ name: groupName });
-    if (!group) {
-      return res.status(404).json({ message: 'Group not found' });
-    }
+    // MENTOR ADVICE: We will fetch messages based on the user's role and the selected group
+    let messages = [];
 
+    // Check if the user has permission to view the requested group
     let hasPermission = false;
-    if (role === 'Admin' || group.type === 'Global') {
+    if (role === 'Admin') {
       hasPermission = true;
-    } else if (role === 'HOD' && group.department === department) {
-      hasPermission = true;
-    } else if ((role === 'Advisor' || role === 'Student') && group.batch === batch) {
-      hasPermission = true;
+    } else if (role === 'HOD') {
+      hasPermission = (groupName === 'Global' || groupName === department);
+    } else if (role === 'Advisor' || role === 'Student') {
+      // Students can view Global, their department, and their batch
+      hasPermission = (groupName === 'Global' || groupName === department || groupName === `${batch}${department}`);
     }
 
     if (!hasPermission) {
       return res.status(403).json({ message: 'Forbidden: You do not have permission to view this group.' });
     }
 
-    const messages = await Message.find({ group: groupName }).populate('sender', 'name role department');
+    // MENTOR ADVICE: Fetch messages from the batch group and the department group
+    if (role === 'Student' || role === 'Advisor') {
+      const batchGroup = `${batch}${department}`;
+
+      // If the user selects their batch group, get both batch and department messages
+      if (groupName === batchGroup) {
+        const batchMessages = await Message.find({ group: batchGroup }).populate('sender', 'name role department');
+        const departmentMessages = await Message.find({ group: department }).populate('sender', 'name role department');
+
+        // Combine and sort messages by creation date
+        messages = [...batchMessages, ...departmentMessages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+      } else {
+        // If the user selects a different group (like 'AID' or 'Global'), just get messages from that group
+        messages = await Message.find({ group: groupName }).populate('sender', 'name role department');
+      }
+    } else {
+      // For other roles (Admin, HOD), just get messages from the selected group
+      messages = await Message.find({ group: groupName }).populate('sender', 'name role department');
+    }
+
     res.json(messages);
 
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

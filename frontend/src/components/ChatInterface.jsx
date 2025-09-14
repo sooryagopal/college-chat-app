@@ -22,7 +22,7 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
       }
     };
     fetchGroups();
-  }, []);
+  }, []); // 🟢 FIX: Empty dependency array ensures this runs only once
 
   // Fetch messages for the selected group
   useEffect(() => {
@@ -39,7 +39,7 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
     };
 
     fetchMessages();
-  }, [selectedGroup]);
+  }, [selectedGroup]); // 🟢 FIX: This runs only when the selected group changes
 
   // Handle real-time messages via Socket.IO
   useEffect(() => {
@@ -59,12 +59,14 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
     return () => {
       socket.off('receiveMessage', handleNewMessage);
     };
-  }, [selectedGroup]);
+  }, [selectedGroup]); // 🟢 FIX: This runs only when the selected group changes
 
   const onSendMessage = async (text) => {
     if (!text || !currentUser) return;
     try {
-      const newMessage = await sendMessage(selectedGroup, text);
+      const newMessage = await
+
+        sendMessage(selectedGroup, text);
 
       // FIX: Immediately add the new message to the state
       // This ensures the message appears for the sender without waiting for the socket broadcast
@@ -75,7 +77,6 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
     }
   };
 
-  // Assuming the backend now handles visibility logic
   const visibleGroups = groups;
 
   return (
