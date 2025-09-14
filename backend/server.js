@@ -22,16 +22,22 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
 // Socket.IO server setup
 const io = new Server(server, {
   cors: {
-    origin: CLIENT_URL, // Dynamically set the origin for production
+    origin: CLIENT_URL,
     methods: ['GET', 'POST'],
   },
 });
 
 // Middleware
 app.use(cors({
-  origin: CLIENT_URL, // Dynamically set the origin for Express
+  origin: CLIENT_URL,
 }));
 app.use(express.json());
+
+// Pass the 'io' instance to the request object so routes can access it.
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
 
 // Use routes
 app.use('/api/auth', authRoutes);
@@ -45,14 +51,6 @@ io.on('connection', (socket) => {
   socket.on('joinGroup', (groupName) => {
     socket.join(groupName);
     console.log(`User ${socket.id} joined group: ${groupName}`);
-  });
-
-  // Listen for new messages
-  socket.on('sendMessage', (message) => {
-    const { group, ...msgData } = message;
-    // Broadcast the message to all clients in the group
-    io.to(group).emit('receiveMessage', msgData);
-    console.log(`Message sent to group ${group}: ${msgData.text}`);
   });
 
   // Handle read receipts (conceptual)
