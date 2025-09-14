@@ -142,5 +142,61 @@ router.post('/messages', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
+router.post('/messages', protect, async (req, res) => {
+  try {
+    const { groupName, text } = req.body;
+    const sender = req.user._id;
+
+    // Find the group
+    const group = await Group.findOne({ name: groupName });
+    if (!group) {
+      return res.status(404).json({ message: 'Group not found' });
+    }
+
+    // Add permission checks based on your project idea
+    const userRole = req.user.role;
+    const userDepartment = req.user.department;
+    const userBatch = req.user.batch;
+
+    let hasPermission = false;
+
+    // Admin can send to any group
+    if (userRole === 'Admin') {
+      hasPermission = true;
+    }
+    // HODs can send to their department's groups and Global
+    else if (userRole === 'HOD' && (group.type === 'Global' || group.department === userDepartment)) {
+      hasPermission = true;
+    }
+    // Advisors can send to their batch group and Global
+    else if (userRole === 'Advisor' && (group.type === 'Global' || group.batch === userBatch)) {
+      hasPermission = true;
+    }
+
+    // Students are read-only
+    if (!hasPermission) {
+      return res.status(403).json({ message: 'Forbidden: You do not have permission to send messages to this group.' });
+    }
+
+    // 🟢 FIX: Create a new message and save it to the database
+    const newMessage = await Message.create({
+      sender,
+      text,
+      group: groupName,
+    });
+
+    // 🟢 Populate the sender details for the real-time broadcast
+    const populatedMessage = await newMessage.populate('sender', 'name role department');
+
+    // Broadcast the message via Socket.IO
+    req.io.to(groupName).emit('receiveMessage', populatedMessage);
+
+    res.status(201).json(populatedMessage);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
 
 export default router;
