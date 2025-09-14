@@ -19,12 +19,12 @@ const seedDatabase = async () => {
 
     // Create initial users
     const users = [
-      { name: 'Admin User', email: 'admin.00adm@kongu.edu', password: 'password123', role: 'Admin', batch: '2000', department: 'ADM' },
-      { name: 'HOD User', email: 'hod.23aid@kongu.edu', password: 'password123', role: 'HOD', batch: '2023', department: 'AID' },
-      { name: 'Advisor User', email: 'advisor.24ece@kongu.edu', password: 'password123', role: 'Advisor', batch: '2024', department: 'ECE' },
-      { name: 'Soorya G', email: 'sooryag.23aid@kongu.edu', password: 'password123', role: 'Student', batch: '2023', department: 'AID' },
-      { name: 'Alice', email: 'alice.24ece@kongu.edu', password: 'password123', role: 'Student', batch: '2024', department: 'ECE' },
-      { name: 'Rahul', email: 'rahul.25cse@kongu.edu', password: 'password123', role: 'Student', batch: '2025', department: 'CSE' },
+      { name: 'Admin User', email: 'admin@kongu.edu', password: 'password123', role: 'Admin', department: 'ADM' },
+      { name: 'HOD User', email: 'hod.aid@kongu.edu', password: 'password123', role: 'HOD', department: 'AID' },
+      { name: 'Advisor User', email: 'advisor.ece@kongu.edu', password: 'password123', role: 'Advisor', department: 'ECE' },
+      { name: 'Soorya G', email: 'sooryag.23aid@kongu.edu', password: 'password123', role: 'Student', batch: '23', department: 'AID' },
+      { name: 'Alice', email: 'alice.24ece@kongu.edu', password: 'password123', role: 'Student', batch: '24', department: 'ECE' },
+      { name: 'Rahul', email: 'rahul.25cse@kongu.edu', password: 'password123', role: 'Student', batch: '25', department: 'CSE' },
     ];
 
     for (const user of users) {
@@ -38,9 +38,9 @@ const seedDatabase = async () => {
     // Create initial groups
     const groups = [
       { name: 'Global', type: 'Global' },
-      { name: '23AID', type: 'Batch', department: 'AID', batch: '2023' },
-      { name: '24ECE', type: 'Batch', department: 'ECE', batch: '2024' },
-      { name: '25CSE', type: 'Batch', department: 'CSE', batch: '2025' },
+      { name: '23AID', type: 'Batch', department: 'AID', batch: '23' },
+      { name: '24ECE', type: 'Batch', department: 'ECE', batch: '24' },
+      { name: '25CSE', type: 'Batch', department: 'CSE', batch: '25' },
       { name: 'AID', type: 'Department', department: 'AID' },
       { name: 'ECE', type: 'Department', department: 'ECE' },
       { name: 'CSE', type: 'Department', department: 'CSE' },
@@ -72,6 +72,7 @@ const seedDatabase = async () => {
     console.log('Database seeding complete!');
   } catch (err) {
     console.error(`Seeding error: ${err.message}`);
+    process.exit(1);
   } finally {
     mongoose.connection.close();
   }

@@ -10,6 +10,8 @@ export const getSocket = () => {
   return socket;
 };
 
+// This hook is not used in your ChatInterface component, but it's well-structured.
+// It can be kept for future use if needed.
 export const useSocket = (url) => {
   const [socket, setSocket] = useState(null);
 
@@ -26,6 +28,6 @@ export const joinGroup = (groupName) => {
   getSocket().emit('joinGroup', groupName);
 };
 
-export const sendMessage = (message) => {
-  getSocket().emit('sendMessage', message);
-};
+// 🟢 MENTOR ADVICE: The sendMessage function has been removed from this file.
+// The frontend now makes a POST request to the backend API to send messages.
+// This is the correct and secure way to handle message sending.

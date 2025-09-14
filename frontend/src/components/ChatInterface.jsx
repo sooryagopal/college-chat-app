@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
-import { getVisibleGroups } from '../utils/groupLogic';
 import Composer from './Composer';
 import MessageFeed from './MessageFeed';
 import { getSocket } from '../lib/socket';
-import api from '../lib/api';
+import api, { sendMessage } from '../lib/api';
 
 const ChatInterface = ({ currentUser, handleLogout }) => {
   const [selectedGroup, setSelectedGroup] = useState('Global');
@@ -45,72 +44,39 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
   // Handle real-time messages via Socket.IO
   useEffect(() => {
     const socket = getSocket();
-    socket.emit('joinGroup', selectedGroup);
+
+    // Join the selected group's room
+    if (selectedGroup) {
+      socket.emit('joinGroup', selectedGroup);
+    }
 
     const handleNewMessage = (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     };
 
     socket.on('receiveMessage', handleNewMessage);
-    
+
     return () => {
       socket.off('receiveMessage', handleNewMessage);
     };
   }, [selectedGroup]);
 
-  const onSendMessage = (text) => {
-    const socket = getSocket();
-    const message = {
-      sender: currentUser._id,
-      text,
-      group: selectedGroup,
-      createdAt: new Date().toISOString(),
-      senderName: currentUser.name,
-      senderRole: currentUser.role
-    };
-    
-    // Add the message to the local state immediately
-    const messageWithSender = {
-        ...message,
-        sender: {
-            _id: currentUser._id,
-            name: currentUser.name,
-            role: currentUser.role
-        }
-    };
-    setMessages((prevMessages) => [...prevMessages, messageWithSender]);
+  const onSendMessage = async (text) => {
+    if (!text || !currentUser) return;
+    try {
+      const newMessage = await sendMessage(selectedGroup, text);
 
-    // Emit the message to the server
-    socket.emit('sendMessage', message);
+      // FIX: Immediately add the new message to the state
+      // This ensures the message appears for the sender without waiting for the socket broadcast
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+
+    } catch (err) {
+      console.error('Failed to send message:', err.response?.data?.message || err.message);
+    }
   };
 
-  const filteredMessages = messages.filter(msg => {
-    if (!currentUser) return false;
-    
-    const isMessageInSelectedGroup = msg.group === selectedGroup;
-    
-    // Admins can see any group's messages
-    if (currentUser.role === 'Admin') {
-      return isMessageInSelectedGroup;
-    }
-    
-    // HODs can see global and their department's messages
-    if (currentUser.role === 'HOD') {
-      const canView = selectedGroup === 'Global' || selectedGroup === currentUser.department;
-      return isMessageInSelectedGroup && canView;
-    }
-    
-    // Advisors and Students can see global and their batch's messages
-    if (currentUser.role === 'Advisor' || currentUser.role === 'Student') {
-      const canView = selectedGroup === 'Global' || selectedGroup === `${currentUser.batch}${currentUser.department}`;
-      return isMessageInSelectedGroup && canView;
-    }
-    
-    return false;
-  });
-  
-
-  const visibleGroups = getVisibleGroups(currentUser, groups);
+  // Assuming the backend now handles visibility logic
+  const visibleGroups = groups;
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans">
@@ -127,11 +93,10 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
             <li
               key={group.name}
               onClick={() => setSelectedGroup(group.name)}
-              className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                selectedGroup === group.name
-                  ? 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 font-semibold shadow-md'
-                  : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
+              className={`p-3 rounded-lg cursor-pointer transition-colors ${selectedGroup === group.name
+                ? 'bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 font-semibold shadow-md'
+                : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
             >
               {group.name}
             </li>
@@ -161,11 +126,11 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : (
-          <MessageFeed messages={filteredMessages} currentUser={currentUser} />
+          <MessageFeed messages={messages} currentUser={currentUser} />
         )}
 
         {currentUser && ['Admin', 'HOD', 'Advisor'].includes(currentUser.role) && (
-          <Composer onSendMessage={(text) => onSendMessage(text)} />
+          <Composer onSendMessage={onSendMessage} />
         )}
       </div>
     </div>

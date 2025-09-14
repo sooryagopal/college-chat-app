@@ -31,4 +31,10 @@ export const fetchCurrentUser = async () => {
   return response.data;
 };
 
+// 🟢 MENTOR ADVICE: New function to send a message to the backend
+export const sendMessage = async (groupName, text) => {
+  const response = await api.post('/chat/messages', { groupName, text });
+  return response.data;
+};
+
 export default api;

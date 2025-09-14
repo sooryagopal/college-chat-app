@@ -6,7 +6,7 @@ import { loginUser, registerUser, fetchCurrentUser } from './lib/api';
 
 const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]); // 🟢 MENTOR ADVICE: Keep messages state here
   const [error, setError] = useState(null);
   const socket = useSocket('http://localhost:5000');
 
@@ -30,6 +30,11 @@ const App = () => {
         setMessages((prevMessages) => [...prevMessages, message]);
       });
     }
+    return () => {
+      if (socket) {
+        socket.off('receiveMessage');
+      }
+    };
   }, [currentUser, socket]);
 
   const handleLogin = async (email, password) => {
@@ -67,8 +72,9 @@ const App = () => {
   return (
     <ChatInterface
       currentUser={currentUser}
-      messages={messages}
+      messages={messages} // 🟢 MENTOR ADVICE: Pass the messages state down
       handleLogout={handleLogout}
+      setMessages={setMessages} // 🟢 MENTOR ADVICE: Pass setMessages down
     />
   );
 };
