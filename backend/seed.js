@@ -21,10 +21,10 @@ const seedDatabase = async () => {
     const users = [
       { name: 'Admin User', email: 'admin@kongu.edu', password: 'password123', role: 'Admin', department: 'ADM' },
       { name: 'HOD User', email: 'hod.aid@kongu.edu', password: 'password123', role: 'HOD', department: 'AID' },
-      { name: 'Advisor User', email: 'advisor.ece@kongu.edu', password: 'password123', role: 'Advisor', department: 'ECE' },
+      { name: 'Advisor User', email: 'advisor.23aid@kongu.edu', password: 'password123', role: 'Advisor', department: 'AID', batch: '23' },
       { name: 'Soorya G', email: 'sooryag.23aid@kongu.edu', password: 'password123', role: 'Student', batch: '23', department: 'AID' },
-      { name: 'Alice', email: 'alice.24ece@kongu.edu', password: 'password123', role: 'Student', batch: '24', department: 'ECE' },
-      { name: 'Rahul', email: 'rahul.25cse@kongu.edu', password: 'password123', role: 'Student', batch: '25', department: 'CSE' },
+      { name: 'Shanjeevini A S', email: 'shanjeevini.24aid@kongu.edu', password: 'password123', role: 'Student', batch: '24', department: 'ECE' },
+      { name: 'Sahana S', email: 'sahana.25cse@kongu.edu', password: 'password123', role: 'Student', batch: '25', department: 'CSE' },
     ];
 
     for (const user of users) {

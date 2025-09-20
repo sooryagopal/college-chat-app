@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
+import Navigation from './Navigation';
 import Composer from './Composer';
 import MessageFeed from './MessageFeed';
 import { getSocket } from '../lib/socket';
@@ -91,7 +92,8 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
   const visibleGroups = groups;
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans">
+      <Navigation currentUser={currentUser} handleLogout={handleLogout} />
       {/* Sidebar for groups */}
       <div className="w-1/4 p-4 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col">
         <div className="flex items-center justify-between mb-4">

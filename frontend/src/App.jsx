@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useSocket } from './lib/socket';
 import LoginCard from './components/LoginCard';
 import ChatInterface from './components/ChatInterface';
+import HomePage from './components/HomePage';
+import CreateAccount from './components/CreateAccount';
+import LogoutHandler from './components/LogoutHandler';
+import Account from './components/Account';
+import Navigation from './components/Navigation'; // Added this import
 import { loginUser, registerUser, fetchCurrentUser } from './lib/api';
 
 const App = () => {
@@ -65,17 +71,56 @@ const App = () => {
     setMessages([]);
   };
 
-  if (!currentUser) {
-    return <LoginCard handleLogin={handleLogin} handleSignup={handleSignup} error={error} />;
-  }
-
   return (
-    <ChatInterface
-      currentUser={currentUser}
-      messages={messages} // 🟢 MENTOR ADVICE: Pass the messages state down
-      handleLogout={handleLogout}
-      setMessages={setMessages} // 🟢 MENTOR ADVICE: Pass setMessages down
-    />
+    <Router>
+      <Navigation currentUser={currentUser} handleLogout={handleLogout} /> {/* Added Navigation component here */}
+      <Routes>
+        <Route path="/" element={<HomePage currentUser={currentUser} />} />
+        <Route 
+          path="/login" 
+          element={
+            currentUser ? 
+            <Navigate to="/" /> : 
+            <LoginCard handleLogin={handleLogin} error={error} />
+          } 
+        />
+        <Route 
+          path="/chat" 
+          element={
+            currentUser ? 
+            <ChatInterface
+              currentUser={currentUser}
+              messages={messages}
+              handleLogout={handleLogout}
+              setMessages={setMessages}
+            /> : 
+            <Navigate to="/login" />
+          } 
+        />
+        <Route 
+          path="/create-account" 
+          element={
+            currentUser?.role === 'Admin' ? 
+            <CreateAccount currentUser={currentUser} /> : 
+            <Navigate to="/" />
+          } 
+        />
+        <Route 
+          path="/account" 
+          element={
+            currentUser ? 
+            <Account currentUser={currentUser} handleLogout={handleLogout} /> : 
+            <Navigate to="/login" />
+          }
+        />
+        <Route 
+          path="/logout" 
+          element={
+            <LogoutHandler handleLogout={handleLogout} />
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 
