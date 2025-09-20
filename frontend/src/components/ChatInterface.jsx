@@ -51,15 +51,26 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
     }
 
     const handleNewMessage = (newMessage) => {
-      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setMessages((prevMessages) => {
+        // Check if message is already in the list to avoid duplicates
+        const messageExists = prevMessages.some(msg => msg._id === newMessage._id);
+        if (!messageExists) {
+          return [...prevMessages, newMessage];
+        }
+        return prevMessages;
+      });
     };
 
     socket.on('receiveMessage', handleNewMessage);
 
+    // Cleanup function
     return () => {
       socket.off('receiveMessage', handleNewMessage);
+      if (selectedGroup) {
+        socket.emit('leaveGroup', selectedGroup);
+      }
     };
-  }, [selectedGroup]); // 🟢 FIX: This runs only when the selected group changes
+  }, [selectedGroup]); // Runs when selected group changes
 
   const onSendMessage = async (text) => {
     if (!text || !currentUser) return;

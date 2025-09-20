@@ -53,10 +53,14 @@ io.on('connection', (socket) => {
     console.log(`User ${socket.id} joined group: ${groupName}`);
   });
 
-  // Handle read receipts (conceptual)
+  // Leave a group
+  socket.on('leaveGroup', (groupName) => {
+    socket.leave(groupName);
+    console.log(`User ${socket.id} left group: ${groupName}`);
+  });
+
+  // Handle read receipts
   socket.on('markAsRead', ({ messageId, userId }) => {
-    // In a real application, you would update the message in the database
-    // to mark it as read by the user.
     io.emit('readReceipt', { messageId, userId });
   });
 
@@ -65,7 +69,7 @@ io.on('connection', (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

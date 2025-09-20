@@ -8,7 +8,7 @@ const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [messages, setMessages] = useState([]); // 🟢 MENTOR ADVICE: Keep messages state here
   const [error, setError] = useState(null);
-  const socket = useSocket('http://localhost:5000');
+  const socket = useSocket('http://localhost:5001');
 
   // This useEffect now handles session persistence
   useEffect(() => {
