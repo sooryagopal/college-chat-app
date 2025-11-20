@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LogOut } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Navigation from './Navigation';
 import Composer from './Composer';
 import MessageFeed from './MessageFeed';
@@ -98,9 +99,11 @@ const ChatInterface = ({ currentUser, handleLogout }) => {
       <div className="w-1/4 p-4 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 flex flex-col">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Groups</h2>
-          <button onClick={handleLogout} className="text-red-500 hover:text-red-600 transition-colors">
-            <LogOut size={20} />
-          </button>
+          <div style={{ textAlign: 'right', padding: '0.5rem' }}>
+            <Link to="/logout" className="text-red-500 hover:text-red-600 transition-colors">
+              <LogOut size={20} />
+            </Link>
+          </div>
         </div>
         <ul className="space-y-2 flex-grow overflow-y-auto">
           {visibleGroups.map((group) => (

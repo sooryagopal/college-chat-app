@@ -5,6 +5,7 @@ import { Home, MessageSquare, UserPlus, User, LogOut } from 'lucide-react';
 const Navigation = ({ currentUser, handleLogout }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
 
   const isActive = (path) => location.pathname === path;
 
@@ -54,7 +55,7 @@ const Navigation = ({ currentUser, handleLogout }) => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            {currentUser ? (
+            {token ? (
               <>
                 <Link
                   to="/account"
@@ -67,7 +68,10 @@ const Navigation = ({ currentUser, handleLogout }) => {
                   <span className="hidden sm:block">{currentUser.name}</span>
                 </Link>
                 <button
-                  onClick={() => navigate('/logout')}
+                  onClick={() => {
+                    handleLogout();
+                    navigate('/');
+                  }}
                   className="flex items-center space-x-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
