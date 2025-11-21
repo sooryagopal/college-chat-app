@@ -39,6 +39,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ message: 'Backend is running' });
+});
+
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
