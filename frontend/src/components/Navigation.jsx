@@ -55,7 +55,7 @@ const Navigation = ({ currentUser, handleLogout }) => {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            {token ? (
+            {token && currentUser ? (
               <>
                 <Link
                   to="/account"
