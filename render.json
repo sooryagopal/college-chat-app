@@ -1,0 +1,14 @@
+{
+  "name": "college-chat-app-backend",
+  "version": "1.0.0",
+  "description": "Backend for college chat application",
+  "main": "backend/server.js",
+  "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js"
+  }
+}
